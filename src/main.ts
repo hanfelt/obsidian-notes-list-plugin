@@ -1,4 +1,4 @@
-import { Plugin, ItemView, WorkspaceLeaf, TFile, TFolder, TAbstractFile, Menu, debounce, setIcon } from "obsidian";
+import { Plugin, ItemView, WorkspaceLeaf, TFile, TFolder, Menu, debounce, setIcon } from "obsidian";
 
 const VIEW_TYPE = "notes-list-view";
 
@@ -116,6 +116,7 @@ class NotesListView extends ItemView {
   }
 
   private async loadIconMap(): Promise<void> {
+    this.iconMap = {};
     try {
       const path = ".obsidian/plugins/obsidian-icon-folder/data.json";
       const data = await this.app.vault.adapter.read(path);
@@ -146,7 +147,13 @@ class NotesListView extends ItemView {
           try {
             const svgPath = `.obsidian/icons/${packFolder}/${iconName}.svg`;
             const svgContent = await this.app.vault.adapter.read(svgPath);
-            iconEl.innerHTML = svgContent;
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(svgContent, "image/svg+xml");
+            const svg = doc.querySelector("svg");
+            if (svg) {
+              iconEl.empty();
+              iconEl.appendChild(iconEl.doc.importNode(svg, true));
+            }
           } catch {
             // Icon file not found
           }
@@ -158,8 +165,7 @@ class NotesListView extends ItemView {
     }
   }
 
-  async renderFolders(): Promise<void> {
-    await this.loadIconMap();
+  renderFolders(): void {
     this.saveState();
     this.foldersEl.empty();
 
@@ -297,7 +303,10 @@ class NotesListView extends ItemView {
 
     input.focus();
 
+    let committed = false;
     const commit = async () => {
+      if (committed) return;
+      committed = true;
       const name = input.value.trim();
       if (!name) {
         inputItem.remove();
@@ -330,6 +339,7 @@ class NotesListView extends ItemView {
         e.preventDefault();
         commit();
       } else if (e.key === "Escape") {
+        committed = true;
         inputItem.remove();
       }
     });
@@ -471,7 +481,8 @@ class NotesListView extends ItemView {
   }
 
   async refresh(): Promise<void> {
-    await this.renderFolders();
+    await this.loadIconMap();
+    this.renderFolders();
     await this.renderNotes();
   }
 }
