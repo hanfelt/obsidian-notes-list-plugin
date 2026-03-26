@@ -2,6 +2,8 @@
 
 An Obsidian plugin that adds an Apple Notes-inspired sidebar with a two-column layout: folders on the left, notes on the right.
 
+![Screenshot](screenshot.png)
+
 ## Features
 
 - **Folder tree** with expandable subfolders and file counts
