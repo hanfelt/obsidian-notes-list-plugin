@@ -1,7 +1,7 @@
 {
   "id": "notes-list",
   "name": "Notes List",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "minAppVersion": "0.15.0",
   "description": "Apple Notes-style file list with previews in the sidebar",
   "author": "Andreas",
